@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from src.domain.entity import Bot
+from src.domain.bot_entity import Bot
 
 
 class BotCreateRequest(BaseModel):

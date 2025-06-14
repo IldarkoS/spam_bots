@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
-from src.api.router import router as bot_router
+from src.api.bots.router import router as bot_router
+from src.api.tasks.router import router as task_router
 from src.logging import configure_logging, LogLevel
 
 configure_logging(LogLevel.DEBUG)
@@ -13,3 +14,4 @@ async def index():
 
 
 app.include_router(bot_router)
+app.include_router(task_router)

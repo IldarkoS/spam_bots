@@ -2,7 +2,7 @@ from sqlalchemy import select, Result, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.models.bot import Bot as BotModel
-from src.domain.entity import BotRepositoryProtocol, Bot as BotEntity
+from src.domain.bot_entity import BotRepositoryProtocol, Bot as BotEntity
 
 
 class BotRepositoryImpl(BotRepositoryProtocol):

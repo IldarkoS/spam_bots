@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from src.api.dto import BotCreateResponse, BotCreateRequest, BotUpdateRequest
+from src.api.bots.dto import BotCreateResponse, BotCreateRequest, BotUpdateRequest
 from src.depends import BotUseCase
 
 router = APIRouter(tags=["Bots"], prefix="")
@@ -12,7 +12,7 @@ async def create_bot(bot_in: BotCreateRequest, bot_use_case: BotUseCase):
     return BotCreateResponse.from_entity(entity)
 
 
-@router.get("/bots/", response_model=list[BotCreateResponse])
+@router.get("/", response_model=list[BotCreateResponse])
 async def get_bots(bot_use_case: BotUseCase):
     bots = await bot_use_case.get_all()
     return [BotCreateResponse.from_entity(bot) for bot in bots]

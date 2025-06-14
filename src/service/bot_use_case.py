@@ -1,4 +1,4 @@
-from src.domain.entity import BotUseCaseProtocol, BotRepositoryProtocol, Bot
+from src.domain.bot_entity import BotUseCaseProtocol, BotRepositoryProtocol, Bot
 from src.exceptions import BotNotFoundError
 
 
