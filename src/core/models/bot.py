@@ -12,7 +12,7 @@ class Bot(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     phone: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(nullable=False)
-    last_seen: Mapped[datetime] = mapped_column(nullable=False)
+    last_seen: Mapped[datetime] = mapped_column(nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         server_default=func.now(), nullable=False
     )

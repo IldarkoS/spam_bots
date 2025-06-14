@@ -1,8 +1,8 @@
-"""create bots table
+"""create bot table
 
-Revision ID: a6276cc714db
+Revision ID: 9a5896b2d84f
 Revises:
-Create Date: 2025-06-11 16:22:05.732680
+Create Date: 2025-06-12 12:51:13.372028
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "a6276cc714db"
+revision: str = "9a5896b2d84f"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -29,7 +29,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(), nullable=False),
         sa.Column("phone", sa.String(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
-        sa.Column("last_seen", sa.DateTime(), nullable=False),
+        sa.Column("last_seen", sa.DateTime(), nullable=True),
         sa.Column(
             "created_at",
             sa.DateTime(),
