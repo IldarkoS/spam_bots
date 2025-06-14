@@ -1,4 +1,5 @@
 from src.domain.entity import BotUseCaseProtocol, BotRepositoryProtocol, Bot
+from src.exceptions import BotNotFoundError
 
 
 class BotUseCaseImpl(BotUseCaseProtocol):
@@ -15,7 +16,7 @@ class BotUseCaseImpl(BotUseCaseProtocol):
     async def get_by_id(self, id: int) -> Bot:
         bot = await self.repository.get_by_id(id)
         if not bot:
-            raise ValueError("Not found")
+            raise BotNotFoundError(bot_id=id)
         return bot
 
     async def update(self, bot: Bot) -> Bot:
