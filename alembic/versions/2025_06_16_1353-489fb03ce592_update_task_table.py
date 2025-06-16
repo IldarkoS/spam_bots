@@ -27,7 +27,7 @@ def upgrade() -> None:
 
     op.add_column(
         "tasks",
-        sa.Column("status", task_status, nullable=False),
+        sa.Column("status", task_status, nullable=False, server_default=sa.text("'NEW'")),
     )
     # ### end Alembic commands ###
 
