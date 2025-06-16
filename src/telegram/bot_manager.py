@@ -1,0 +1,3 @@
+class BotManager:
+    def __init__(self, session_dir: str = "sessions"):
+        ...

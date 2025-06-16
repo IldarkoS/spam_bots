@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from src.config import settings
 from src.telegram.auth_service import AuthService
 
 router = APIRouter(prefix="", tags=["Auth Bots"])
-auth_service = AuthService()
+auth_service = AuthService(session_dir=settings.SESSIONS_DIR)
 
 class AuthRequest(BaseModel):
     phone: str

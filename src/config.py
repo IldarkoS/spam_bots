@@ -1,7 +1,9 @@
 import os
+from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -15,6 +17,8 @@ class Settings(BaseSettings):
     DB_USER: str = "user"
     DB_PASS: str = "password"
     DB_NAME: str = "bots"
+
+    SESSIONS_DIR: str = str(BASE_DIR / "sessions")
 
     @property
     def DB_URL(self):

@@ -8,8 +8,8 @@ from src.adapters.task_repository import TaskRepositoryImpl
 from src.core.db import db_helper
 from src.domain.bot_entity import BotRepositoryProtocol, BotUseCaseProtocol
 from src.domain.task_entity import TaskRepositoryProtocol, TaskUseCaseProtocol
-from src.service.bot_use_case import BotUseCaseImpl
-from src.service.task_use_case import TaskUseCaseImpl
+from src.service.bot import BotUseCaseImpl
+from src.service.task import TaskUseCaseImpl
 
 Session = Annotated[AsyncSession, Depends(db_helper.session_dependency)]
 
