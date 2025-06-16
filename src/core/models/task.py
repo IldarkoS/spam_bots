@@ -17,6 +17,13 @@ class TaskScope(Enum):
     PERSONAL = "PERSONAL"
 
 
+class TaskStatus(Enum):
+    NEW = "NEW"
+    IN_PROGRESS = "IN_PROGRESS"
+    DONE = "DONE"
+    FAILED = "FAILED"
+
+
 class Task(Base):
     channel: Mapped[str] = mapped_column(nullable=False)
     post_id: Mapped[int] = mapped_column(nullable=True)
@@ -24,3 +31,4 @@ class Task(Base):
     scope: Mapped[TaskScope] = mapped_column(nullable=False)
     bot_id: Mapped[int] = mapped_column(ForeignKey("bots.id"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    status: Mapped[TaskStatus] = mapped_column(nullable=False)
