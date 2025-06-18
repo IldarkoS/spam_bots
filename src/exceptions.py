@@ -42,3 +42,40 @@ class InvalidFilterFieldException(Exception):
         super().__init__(f"Invalid filter field: '{field}' does not exist")
 
 
+class AuthBotError(HTTPException): ...
+
+
+class InvalidPhoneError(AuthBotError):
+    def __init__(self):
+        message = "Invalid phone number"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+
+
+class InvalidCodeError(AuthBotError):
+    def __init__(self):
+        message = "Invalid code"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+
+
+class CodeExpiredError(AuthBotError):
+    def __init__(self):
+        message = "Code expired"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+
+
+class TooManyRequestsError(AuthBotError):
+    def __init__(self):
+        message = "Too many requests, try again later"
+        super().__init__(status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=message)
+
+
+class InvalidPasswordError(AuthBotError):
+    def __init__(self):
+        message = "Invalid password"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=message)
+
+
+class CodeNotRequestedError(AuthBotError):
+    def __init__(self):
+        message = "Code was not requested"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=message)

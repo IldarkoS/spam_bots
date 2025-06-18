@@ -15,6 +15,7 @@ class Bot(BaseModel):
     api_hash: str
     name: str
     phone: str
+    phone_code_hash: str | None = None
     is_active: bool = False
     is_authorized: bool = False
     created_at: datetime | None = None

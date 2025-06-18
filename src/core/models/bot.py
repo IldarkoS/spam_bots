@@ -10,6 +10,7 @@ class Bot(Base):
     api_id: Mapped[int] = mapped_column(nullable=False)
     api_hash: Mapped[str] = mapped_column(nullable=False)
     phone: Mapped[str] = mapped_column(nullable=False)
+    phone_code_hash: Mapped[str] = mapped_column(nullable=True)
     name: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_authorized: Mapped[bool] = mapped_column(nullable=False, default=False)
