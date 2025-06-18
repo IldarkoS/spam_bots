@@ -12,6 +12,12 @@ class BotNotFoundError(BotError):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=message)
 
 
+class BotAlreadyExistsError(BotError):
+    def __init__(self):
+        message = "Bot already exists"
+        super().__init__(status_code=status.HTTP_201_CREATED, detail=message)
+
+
 class TaskError(HTTPException): ...
 
 
@@ -29,3 +35,10 @@ class TaskNotFoundError(TaskError):
             else f"Task with ID: {task_id} not found"
         )
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=message)
+
+
+class InvalidFilterFieldException(Exception):
+    def __init__(self, field: str):
+        super().__init__(f"Invalid filter field: '{field}' does not exist")
+
+

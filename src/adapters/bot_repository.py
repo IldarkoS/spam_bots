@@ -1,8 +1,11 @@
+from typing import Any
+
 from sqlalchemy import select, Result, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.models.bot import Bot as BotModel
-from src.domain.bot_entity import BotRepositoryProtocol, Bot as BotEntity
+from src.domain.bot import BotRepositoryProtocol, Bot as BotEntity, QueryParams
+from src.exceptions import InvalidFilterFieldException
 
 
 class BotRepositoryImpl(BotRepositoryProtocol):
@@ -17,7 +20,7 @@ class BotRepositoryImpl(BotRepositoryProtocol):
     def _orm_to_entity(orm: BotModel) -> BotEntity:
         return BotEntity.model_validate(orm, from_attributes=True)
 
-    async def add(self, bot: BotEntity) -> BotEntity:
+    async def create(self, bot: BotEntity) -> BotEntity:
         orm = self._entity_to_orm(bot)
         self.session.add(orm)
         await self.session.commit()
@@ -29,8 +32,14 @@ class BotRepositoryImpl(BotRepositoryProtocol):
         await self.session.execute(stmt)
         await self.session.commit()
 
-    async def get_by_id(self, id: int) -> BotEntity | None:
-        stmt = select(BotModel).where(BotModel.id == id)
+    async def get_by_fields(self, filters: dict[str, Any]) -> BotEntity | None:
+        stmt = select(BotModel)
+
+        for field, value in filters.items():
+            if not hasattr(BotModel, field):
+                raise InvalidFilterFieldException(field)
+            stmt = stmt.where(getattr(BotModel, field) == value)
+
         result: Result = await self.session.execute(stmt)
         orm = result.scalar_one_or_none()
         return self._orm_to_entity(orm) if orm else None
@@ -47,8 +56,13 @@ class BotRepositoryImpl(BotRepositoryProtocol):
         await self.session.commit()
         return self._orm_to_entity(orm)
 
-    async def get_all(self) -> list[BotEntity]:
+    async def get_all_bots(self, params: QueryParams) -> list[BotEntity]:
         stmt = select(BotModel)
+        if params.limit is not None:
+            stmt = stmt.limit(params.limit)
+        if params.offset is not None:
+            stmt = stmt.offset(params.offset)
+
         result: Result = await self.session.execute(stmt)
         orms = result.scalars().all()
         return [self._orm_to_entity(orm) for orm in orms]

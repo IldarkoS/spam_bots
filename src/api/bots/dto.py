@@ -1,15 +1,20 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from src.domain.bot_entity import Bot
+from src.domain.bot import Bot
 
 
-class BotCreateRequest(BaseModel):
+class FilterParams(BaseModel):
+    offset: int | None = Field(0, ge=0)
+    limit: int | None = Field(20, ge=0, le=100)
+
+
+class BotCreate(BaseModel):
     api_id: int
     api_hash: str
-    name: str
     phone: str
+    name: str
 
     def to_entity(self) -> Bot:
         return Bot(
@@ -20,43 +25,33 @@ class BotCreateRequest(BaseModel):
         )
 
 
-class BotCreateResponse(BaseModel):
+class BotRead(BaseModel):
     id: int
-    api_id: int
-    api_hash: str
     name: str
     phone: str
     is_active: bool
-    last_seen: datetime | None
+    is_authorized: bool
     created_at: datetime
 
     @classmethod
     def from_entity(cls, entity: Bot):
         return cls(
             id=entity.id,
-            api_id=entity.api_id,
-            api_hash=entity.api_hash,
             name=entity.name,
             phone=entity.phone,
             is_active=entity.is_active,
-            last_seen=entity.last_seen,
+            is_authorized=entity.is_authorized,
             created_at=entity.created_at,
         )
 
 
-class BotUpdateRequest(BaseModel):
-    api_id: int
-    api_hash: str
-    name: str
-    phone: str
-    is_active: bool
+class BotUpdate(BotCreate):
 
-    def to_entity(self, bot_id: int) -> Bot:
+    def to_entity(self, bot_id) -> Bot:
         return Bot(
             id=bot_id,
             api_id=self.api_id,
             api_hash=self.api_hash,
             name=self.name,
             phone=self.phone,
-            is_active=self.is_active,
         )
