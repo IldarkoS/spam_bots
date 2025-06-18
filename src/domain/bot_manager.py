@@ -1,0 +1,13 @@
+from typing import Protocol
+
+from src.domain.bot import Bot
+
+
+class BotManagerUseCaseProtocol(Protocol):
+    async def start_bot(self, bot: Bot): ...
+
+    async def stop_bot(self, bot: Bot): ...
+
+    async def restart_bot(self, bot: Bot): ...
+
+    async def get_status(self) -> list[dict]: ...
