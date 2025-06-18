@@ -3,12 +3,7 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from src.domain.task_entity import Task
-
-
-class TaskType(str, Enum):
-    SINGLE = "SINGLE"
-    SUBSCRIBE = "SUBSCRIBE"
+from src.domain.task import Task
 
 
 class TaskScope(str, Enum):
@@ -16,26 +11,30 @@ class TaskScope(str, Enum):
     PERSONAL = "PERSONAL"
 
 
-class TaskCreateRequest(BaseModel):
+class TaskStatus(Enum):
+    NEW = "NEW"
+    IN_PROGRESS = "IN_PROGRESS"
+    DONE = "DONE"
+    FAILED = "FAILED"
+
+
+class TaskCreate(BaseModel):
     channel: str
-    post_id: int | None = None
-    type: TaskType
     scope: TaskScope
     bot_id: int | None = None
 
     def to_entity(self) -> Task:
         return Task(
             channel=self.channel,
-            post_id=self.post_id,
-            type=self.type,
             scope=self.scope,
             bot_id=self.bot_id,
         )
 
 
-class TaskCreateResponse(TaskCreateRequest):
+class TaskRead(TaskCreate):
     id: int
     created_at: datetime
+    status: TaskStatus
 
     @classmethod
     def from_entity(cls, entity: Task):
@@ -43,8 +42,7 @@ class TaskCreateResponse(TaskCreateRequest):
             id=entity.id,
             created_at=entity.created_at,
             scope=entity.scope,
-            type=entity.type,
             bot_id=entity.bot_id,
             channel=entity.channel,
-            post_id=entity.post_id,
+            status=entity.status,
         )

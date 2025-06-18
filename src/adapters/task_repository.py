@@ -1,9 +1,9 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.models.task import Task as TaskModel
-from src.domain.task_entity import Task as TaskEntity
-from src.domain.task_entity import TaskRepositoryProtocol
+from src.domain.task import Task as TaskEntity
+from src.domain.task import TaskRepositoryProtocol
 
 
 class TaskRepositoryImpl(TaskRepositoryProtocol):
@@ -41,3 +41,15 @@ class TaskRepositoryImpl(TaskRepositoryProtocol):
         result = await self.session.execute(stmt)
         orms = result.scalars().all()
         return [self._orm_to_entity(orm) for orm in orms]
+
+    async def update(self, task: TaskEntity) -> TaskEntity:
+        stmt = (
+            update(TaskModel)
+            .where(TaskModel.id == task.id)
+            .values(**task.model_dump(exclude_none=True))
+            .returning(TaskModel)
+        )
+        result = await self.session.execute(stmt)
+        orm = result.scalar_one_or_none()
+        await self.session.commit()
+        return self._orm_to_entity(orm)

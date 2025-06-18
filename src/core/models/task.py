@@ -22,6 +22,8 @@ class TaskStatus(str, Enum):
 class Task(Base):
     channel: Mapped[str] = mapped_column(nullable=False)
     scope: Mapped[TaskScope] = mapped_column(nullable=False)
-    bot_id: Mapped[int] = mapped_column(ForeignKey("bots.id", ondelete="CASCADE"), nullable=True)
+    bot_id: Mapped[int] = mapped_column(
+        ForeignKey("bots.id", ondelete="CASCADE"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     status: Mapped[TaskStatus] = mapped_column(nullable=False)

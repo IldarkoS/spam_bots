@@ -5,24 +5,25 @@ from typing import Protocol
 from pydantic import BaseModel
 
 
-class TaskType(str, Enum):
-    SINGLE = "SINGLE"
-    SUBSCRIBE = "SUBSCRIBE"
-
-
 class TaskScope(str, Enum):
     GLOBAL = "GLOBAL"
     PERSONAL = "PERSONAL"
 
 
+class TaskStatus(str, Enum):
+    NEW = "NEW"
+    IN_PROGRESS = "IN_PROGRESS"
+    DONE = "DONE"
+    FAILED = "FAILED"
+
+
 class Task(BaseModel):
     id: int | None = None
     bot_id: int | None = None
-    post_id: int | None = None
     channel: str
-    type: TaskType
     scope: TaskScope
     created_at: datetime | None = None
+    status: TaskStatus = TaskStatus.NEW
 
 
 class TaskRepositoryProtocol(Protocol):
@@ -33,6 +34,8 @@ class TaskRepositoryProtocol(Protocol):
     async def delete_task_by_id(self, id: int) -> None: ...
 
     async def get_all_tasks(self) -> list[Task]: ...
+
+    async def update(self, task: Task) -> Task: ...
 
 
 class TaskUseCaseProtocol(Protocol):

@@ -1,4 +1,4 @@
-from src.domain.task_entity import TaskUseCaseProtocol, TaskRepositoryProtocol, Task
+from src.domain.task import TaskUseCaseProtocol, TaskRepositoryProtocol, Task
 from src.exceptions import TaskAlreadyExistsError, TaskNotFoundError
 
 
