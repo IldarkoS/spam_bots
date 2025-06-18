@@ -12,6 +12,13 @@ class LogLevel(StrEnum):
 
 
 def configure_logging(log_level: LogLevel = LogLevel.ERROR):
+    # Telethon
+    logging.getLogger("telethon").setLevel(level=logging.WARNING)
+
+    # httpx
+    logging.getLogger("httpx").setLevel(level=logging.WARNING)
+    logging.getLogger("httpcore").setLevel(level=logging.WARNING)
+
     log_level = str(log_level).upper()
     log_levels = [level.value for level in LogLevel]
 

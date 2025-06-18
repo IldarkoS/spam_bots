@@ -5,6 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=os.environ.get("ENV_FILE", ".env"),
@@ -19,6 +20,8 @@ class Settings(BaseSettings):
     DB_NAME: str = "bots"
 
     SESSIONS_DIR: str = str(BASE_DIR / "sessions")
+
+    OPENAI_API_KEY: str
 
     @property
     def DB_URL(self):
