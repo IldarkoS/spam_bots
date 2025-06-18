@@ -10,3 +10,18 @@ services:
       POSTGRES_DB: ${DB_NAME}
     ports:
       - "${DB_PORT}:${DB_PORT}"
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+    restart: unless-stopped
+    command: serve
+
+volumes:
+  ollama_data:
