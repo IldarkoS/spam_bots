@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import ForeignKey, func
+from sqlalchemy import ForeignKey, func, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.core.models.base import Base
@@ -20,6 +20,7 @@ class TaskStatus(str, Enum):
 
 
 class Task(Base):
+    title: Mapped[str] = mapped_column(String(50))
     channel: Mapped[str] = mapped_column(nullable=False)
     scope: Mapped[TaskScope] = mapped_column(nullable=False)
     bot_id: Mapped[int] = mapped_column(

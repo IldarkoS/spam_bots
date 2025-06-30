@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter
 from starlette import status
 
-from src.api.tasks.dto import TaskRead, TaskCreate
+from src.api.tasks.dto import TaskRead, TaskCreate, TaskUpdate
 from src.depends import TaskUseCase
 
 router = APIRouter(prefix="", tags=["Tasks"])
@@ -26,3 +26,20 @@ async def get_list_task(
 ):
     tasks = await task_use_case.get_all_tasks()
     return [TaskRead.from_entity(task) for task in tasks]
+
+
+@router.delete("/task/{task_id}/", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_task(task_id: int, task_use_case: TaskUseCase):
+    await task_use_case.delete_task(id=task_id)
+
+
+@router.patch("/task/{task_id}/", response_model=TaskRead, status_code=status.HTTP_200_OK)
+async def patch_task(task_id: int, task_in: TaskUpdate, task_use_case: TaskUseCase):
+    entity = task_in.to_entity(task_id)
+    entity = await task_use_case.update_task(task=entity)
+    return TaskRead.from_entity(entity)
+
+@router.get("/task/{task_id}/", response_model=TaskRead)
+async def get_task(task_id: int, task_use_case: TaskUseCase):
+    entity = await task_use_case.get_task_by_id(id=task_id)
+    return TaskRead.from_entity(entity)

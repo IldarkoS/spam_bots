@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
+from typing import Annotated
 
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
 
 from src.domain.task import Task
 
@@ -19,12 +20,14 @@ class TaskStatus(Enum):
 
 
 class TaskCreate(BaseModel):
+    title: Annotated[str, StringConstraints(max_length=50)]
     channel: str
     scope: TaskScope
     bot_id: int | None = None
 
     def to_entity(self) -> Task:
         return Task(
+            title=self.title,
             channel=self.channel,
             scope=self.scope,
             bot_id=self.bot_id,
@@ -41,8 +44,21 @@ class TaskRead(TaskCreate):
         return cls(
             id=entity.id,
             created_at=entity.created_at,
+            title=entity.title,
             scope=entity.scope,
             bot_id=entity.bot_id,
             channel=entity.channel,
             status=entity.status,
+        )
+
+
+class TaskUpdate(TaskCreate):
+
+    def to_entity(self, task_id) -> Task:
+        return Task(
+            id=task_id,
+            title=self.title,
+            channel=self.channel,
+            scope=self.scope,
+            bot_id=self.bot_id,
         )

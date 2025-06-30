@@ -7,9 +7,14 @@ class TaskUseCaseImpl(TaskUseCaseProtocol):
         self.repository = repository
 
     async def add(self, task: Task) -> Task:
-        # exist = await self.get_task_by_id(task.id)
-        # if exist:
-        #     raise TaskAlreadyExistsError()
+        exist = await self.repository.get_by_fields(
+            {
+                "title": task.title,
+                "channel": task.channel,
+            }
+        )
+        if exist:
+            raise TaskAlreadyExistsError()
         return await self.repository.add(task)
 
     async def delete_task(self, id: int) -> None:
@@ -19,7 +24,15 @@ class TaskUseCaseImpl(TaskUseCaseProtocol):
         return await self.repository.get_all_tasks()
 
     async def get_task_by_id(self, id: int) -> Task:
-        task = await self.repository.get_task_by_id(id)
+        task = await self.repository.get_by_fields(
+            {
+                "id": id,
+            }
+        )
         if not task:
             raise TaskNotFoundError(task_id=id)
         return task
+
+    async def update_task(self, task: Task) -> Task:
+        exist = await self.get_task_by_id(id=task.id)
+        return await self.repository.update(task=task)

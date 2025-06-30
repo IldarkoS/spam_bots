@@ -1,8 +1,8 @@
 from datetime import datetime
 from enum import Enum
-from typing import Protocol
+from typing import Protocol, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, StringConstraints
 
 
 class TaskScope(str, Enum):
@@ -20,6 +20,7 @@ class TaskStatus(str, Enum):
 class Task(BaseModel):
     id: int | None = None
     bot_id: int | None = None
+    title: str = StringConstraints(max_length=50)
     channel: str
     scope: TaskScope
     created_at: datetime | None = None
@@ -29,13 +30,13 @@ class Task(BaseModel):
 class TaskRepositoryProtocol(Protocol):
     async def add(self, task: Task) -> Task: ...
 
-    async def get_task_by_id(self, id: int) -> Task | None: ...
-
     async def delete_task_by_id(self, id: int) -> None: ...
 
     async def get_all_tasks(self) -> list[Task]: ...
 
     async def update(self, task: Task) -> Task: ...
+
+    async def get_by_fields(self, filters: dict[str, Any]) -> Task | None: ...
 
 
 class TaskUseCaseProtocol(Protocol):
@@ -46,3 +47,5 @@ class TaskUseCaseProtocol(Protocol):
     async def get_all_tasks(self) -> list[Task]: ...
 
     async def get_task_by_id(self, id: int) -> Task: ...
+
+    async def update_task(self, task: Task) -> Task: ...

@@ -1,9 +1,12 @@
-from sqlalchemy import select, delete, update
+from typing import Any
+
+from sqlalchemy import select, delete, update, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.models.task import Task as TaskModel
 from src.domain.task import Task as TaskEntity
 from src.domain.task import TaskRepositoryProtocol
+from src.exceptions import InvalidFilterFieldException
 
 
 class TaskRepositoryImpl(TaskRepositoryProtocol):
@@ -25,9 +28,15 @@ class TaskRepositoryImpl(TaskRepositoryProtocol):
         await self.session.refresh(orm)
         return self._orm_to_entity(orm)
 
-    async def get_task_by_id(self, id: int) -> TaskEntity | None:
-        stmt = select(TaskModel).where(TaskModel.id == id)
-        result = await self.session.execute(stmt)
+    async def get_by_fields(self, filters: dict[str, Any]) -> TaskEntity | None:
+        stmt = select(TaskModel)
+
+        for field, value in filters.items():
+            if not hasattr(TaskModel, field):
+                raise InvalidFilterFieldException(field)
+            stmt = stmt.where(getattr(TaskModel, field) == value)
+
+        result: Result = await self.session.execute(stmt)
         orm = result.scalar_one_or_none()
         return self._orm_to_entity(orm) if orm else None
 
