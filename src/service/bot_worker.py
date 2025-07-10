@@ -1,9 +1,11 @@
 import asyncio
 import logging
+import random
 from os import login_tty
 
 from telethon import TelegramClient, events
 from telethon.errors import RPCError, UserNotParticipantError
+from telethon.tl.functions.channels import JoinChannelRequest, GetParticipantRequest
 from telethon.tl.types import PeerChannel, Message, Channel
 
 from src.config import settings
@@ -83,43 +85,51 @@ class BotWorkerUseCaseImpl(BotWorkerUseCaseProtocol):
         channel_ids = {int(t.channel) for t in relevant}
         self._active_channels = channel_ids
 
-        # logging.info(
-        #     f"Bot worker ({self.bot.name}:{self.bot.phone}) now listening to channels: {channel_ids}"
-        # )
+        logging.info(
+            f"Bot worker ({self.bot.name}:{self.bot.phone}) now listening to channels: {channel_ids}"
+        )
 
     async def _message_handler(self, event: events.NewMessage.Event):
         chat = event.chat
         message: Message = event.message
 
         if not isinstance(chat, Channel):
+            logging.debug("Skip 1")
+            return
+
+        if not isinstance(message.to_id, PeerChannel):
+            logging.debug("Skip 2")
+            return
+
+        if message.is_reply or not message.is_channel:
+            logging.debug("Skip 3")
             return
 
         if chat.id not in self._active_channels:
+            logging.debug("Skip 4")
             return
 
-        if message.is_reply or message.reply_to:
+        if getattr(message, 'from_id', None) is None or not isinstance(message.from_id, PeerChannel):
+            logging.debug("Skip 5")
             return
 
         try:
-            participant = await event.client.get_permissions(chat, 'me')
-            if not participant.post_messages:
-                logging.warning(
-                    f"Bot worker ({self.bot.name}:{self.bot.phone}) has no rights to post messages in {chat.title} ({chat.id})"
-                )
-                return
+            await self.client(GetParticipantRequest(channel=chat, participant='me'))
         except UserNotParticipantError:
-            logging.warning(
-                f"Bot worker ({self.bot.name}:{self.bot.phone}) is not a participant of {chat.title} ({chat.id})"
-            )
-            return
+            logging.info(f"Bot is not a participant of {chat.title} ({chat.id}), joining...")
+            success = await self._join_channel(chat)
+            if not success:
+                return
+            await asyncio.sleep(3)
         except RPCError as e:
             logging.error(
-                f"Bot worker ({self.bot.name}:{self.bot.phone}) failed to check permissions in {chat.title} ({chat.id}): {e}"
+                f"Bot worker ({self.bot.name}:{self.bot.phone}) failed to check membership in {chat.title} ({chat.id}): {e}"
             )
             return
 
         try:
             reply = await self.comment_generator.generate_comment(post_text=message.message)
+            # await asyncio.sleep(random.randint(300, 1000))
             await event.reply(reply)
             logging.info(
                 f"Bot worker ({self.bot.name}:{self.bot.phone}) replied in channel {chat.title} ({chat.id}): {reply[:30]}"
@@ -133,3 +143,14 @@ class BotWorkerUseCaseImpl(BotWorkerUseCaseProtocol):
         self._is_running = False
         self._active_channels.clear()
         logging.info(f"Bot worker ({self.bot.name}:{self.bot.phone}) shutdown initiated.")
+
+    async def _join_channel(self, channel_id: int):
+        try:
+            await self.client(JoinChannelRequest(channel_id))
+            logging.info(f"Bot worker ({self.bot.name}:{self.bot.phone}) joined channel {channel_id}")
+            return True
+        except Exception as e:
+            logging.error(
+                f"Bot worker ({self.bot.name}:{self.bot.phone}) failed to join channel {channel_id}: {e}"
+            )
+            return False

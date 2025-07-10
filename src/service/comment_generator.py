@@ -9,11 +9,11 @@ from src.domain.comment_generator import CommentGeneratorProtocol
 class OllamaClient:
     def __init__(self):
         self.base_url = "http://localhost:11434"
-        self.model = "mistral"
+        self.model = "qwen3"
+        self.timeout = httpx.Timeout(60.0)
 
     async def _ensure_model_loaded(self):
-        """Проверка, загружена ли модель. Если нет — подтянуть."""
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
             try:
                 res = await client.get(f"{self.base_url}/api/tags")
                 res.raise_for_status()
@@ -27,7 +27,7 @@ class OllamaClient:
                 else:
                     logging.debug(f"Model {self.model} already loaded.")
             except Exception as e:
-                logging.exception("Failed to pull/check model from Ollama")
+                logging.exception(f"Failed to pull/check model from Ollama - {e}")
 
     async def generate(self, prompt: str) -> str:
         await self._ensure_model_loaded()
@@ -38,7 +38,7 @@ class OllamaClient:
             "stream": False
         }
 
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
             response = await client.post(f"{self.base_url}/api/chat", json=payload)
 
         if response.status_code != 200:
@@ -76,14 +76,20 @@ class CommentGeneratorImpl(CommentGeneratorProtocol):
         logging.info(f"Generating comment for post: {clean_text[:30]}")
 
         prompt = (
-            f"Напиши короткий дружелюбный комментарий к следующему посту - {clean_text}"
+            f'''
+            Напиши короткий дружелюбный комментарий,  
+            не нужно никаких рассуждений, твой ответ - это только комментарий длиной не более 15 слов - 
+            {clean_text}
+            '''
         )
 
         try:
             response = await self.llm_client.generate(prompt=prompt)
-            comment = response.strip()
+            word = "</think>"
+            think_end = response.find("</think>")
+            comment = response.strip()[think_end+len(word):]
             logging.info(f"Generated comment: {comment[:30]}")
             return comment
         except Exception as e:
-            logging.exception("Failed to generate comment")
+            logging.exception(f"Failed to generate comment - {e}")
             return "Интересный пост!"
