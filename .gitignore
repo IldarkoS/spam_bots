@@ -3,3 +3,6 @@
 /.idea/
 .idea
 /sessions
+/directory_files.py
+/dump.txt
+/node_modules/

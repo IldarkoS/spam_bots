@@ -23,5 +23,28 @@ services:
     restart: unless-stopped
     command: serve
 
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - "80:80"
+    restart: always
+
+  fastapi:
+      build:
+        context: .
+        dockerfile: src/Dockerfile
+      container_name: fastapi
+      restart: always
+      volumes:
+        - .:/app
+      ports:
+        - "8000:8000"
+      depends_on:
+        - db
+      env_file:
+        - .env
+
 volumes:
   ollama_data:
